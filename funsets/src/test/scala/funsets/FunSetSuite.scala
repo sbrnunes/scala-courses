@@ -110,5 +110,81 @@ class FunSetSuite extends FunSuite {
     }
   }
 
+  test("intersect contains only elements that belong to both sets") {
+    new TestSets {
+      val u = union(s1, s2)
+      val i = intersect(u, s2)
+      assert(!contains(i, 1), "Intersect 1")
+      assert(contains(i, 2), "Intersect 2")
+      assert(!contains(i, 3), "Intersect 3")
+    }
+  }
 
+  test("diff contains only the elements found in one set but not in the other") {
+    new TestSets {
+      val u = union(s1, union(s2, s3))
+      assert(!contains(diff(u, s1), 1))
+      assert(contains(diff(u, s1), 2))
+      assert(contains(diff(u, s1), 3))
+
+      assert(contains(diff(u, s2), 1))
+      assert(!contains(diff(u, s2), 2))
+      assert(contains(diff(u, s2), 3))
+
+      assert(contains(diff(u, s3), 1))
+      assert(contains(diff(u, s3), 2))
+      assert(!contains(diff(u, s3), 3))
+    }
+  }
+
+  test("filter contains only the elements from the given set that match the given predicate") {
+    new TestSets {
+      val u = union(s1, union(s2, s3))
+      assert(contains(filter(u, (elem: Int) => elem == 1), 1))
+      assert(!contains(filter(u, (elem: Int) => elem == 1), 2))
+      assert(!contains(filter(u, (elem: Int) => elem == 1), 3))
+
+      assert(!contains(filter(u, (elem: Int) => elem == 2), 1))
+      assert(contains(filter(u, (elem: Int) => elem == 2), 2))
+      assert(!contains(filter(u, (elem: Int) => elem == 2), 3))
+
+      assert(!contains(filter(u, (elem: Int) => elem == 3), 1))
+      assert(!contains(filter(u, (elem: Int) => elem == 3), 2))
+      assert(contains(filter(u, (elem: Int) => elem == 3), 3))
+
+      assert(!contains(filter(u, (elem: Int) => elem == 4), 4))
+    }
+  }
+
+  test("forall returns whether all bounded integers within the given set satisfy the given predicate") {
+    new TestSets {
+      val u = union(s1, union(s2, s3))
+      assert(forall(u, (elem: Int) => elem > 0))
+      assert(!forall(u, (elem: Int) => elem < 0))
+
+      val n = union(singletonSet(-1), union(singletonSet(-2), singletonSet(-3)))
+      assert(forall(n, (elem: Int) => elem < 0))
+    }
+  }
+
+  test("exists returns whether there exists a bounded integer within the given set that satisfies the given predicate") {
+    new TestSets {
+      val u = union(s1, s3)
+      assert(exists(u, (elem: Int) => elem == 1))
+      assert(!exists(u, (elem: Int) => elem == 2))
+      assert(exists(u, (elem: Int) => elem == 3))
+      assert(!exists(u, (elem: Int) => elem == 4))
+    }
+  }
+
+  test("map returns a set transformed by applying a given function to each element of the given set") {
+    new TestSets {
+      val m = map(union(s1, union(s2, s3)), (elem: Int) => elem + 1)
+      assert(!contains(m, 1))
+      assert(contains(m, 2))
+      assert(contains(m, 3))
+      assert(contains(m, 4))
+      assert(!contains(m, 5))
+    }
+  }
 }
