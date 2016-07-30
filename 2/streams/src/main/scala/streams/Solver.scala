@@ -1,8 +1,5 @@
 package streams
 
-import common._
-import sun.security.provider.certpath.Vertex
-
 /**
  * This component implements the solver for the Bloxorz game
  */
@@ -11,7 +8,7 @@ trait Solver extends GameDef {
   /**
    * Returns `true` if the block `b` is at the final position
    */
-  def done(b: Block): Boolean = b.isStanding && b.b1 == startPos
+  def done(b: Block): Boolean = b.isStanding && b.b1 == goal
 
   /**
    * This function takes two arguments: the current block `b` and
@@ -87,7 +84,7 @@ trait Solver extends GameDef {
    * with the history how it was reached.
    */
   lazy val pathsToGoal: Stream[(Block, List[Move])] = {
-    pathsFromStart.filter { case (block, moves) => block == Block(goal, goal) }
+    pathsFromStart.filter { case (block, moves) => done(block) }
   }
 
   /**
@@ -98,5 +95,8 @@ trait Solver extends GameDef {
    * the first move that the player should perform from the starting
    * position.
    */
-  lazy val solution: List[Move] = pathsToGoal.head._2
+  lazy val solution: List[Move] = pathsToGoal.toList match {
+    case Nil => List.empty
+    case head :: tail => head._2
+  }
 }
